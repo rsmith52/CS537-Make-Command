@@ -4,6 +4,7 @@
 #include "main.h"
 #include "text_parsing.h"
 #include "build_spec_repr.h"
+#include "build_spec_graph.h"
 
 const int LINE_BUFF_SIZE = 1024;
 const int BASE_LIST_SIZE = 10;
@@ -149,7 +150,8 @@ int main () {
 	}
 
 	// Build Graph of Spec_Representations
-	
+	Spec_Graph * spec_graph = BuildSpecGraph(nodes, spec_rep_index);
+
 	// Traverse Graph Calling CreateProcess + ExecuteProgram
 	
 	return 0;
