@@ -5,8 +5,10 @@
 #include "main.h"
 /* Prototypes for Functions */
 
-Spec_Representation * CreateSpec(char ** file_line);
+Spec_Representation * CreateSpec(char ** file_line, int index);
 
 void AddCommand(Spec_Representation * spec_repr, char ** file_line);
+
+Spec_Representation * GetSpeg(char * target, Spec_Representation ** nodes);
 
 #endif

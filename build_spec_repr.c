@@ -1,10 +1,12 @@
 #include <stdlib.h>
+#include <string.h>
 #include "build_spec_repr.h"
 
-Spec_Representation * CreateSpec(char ** file_line) {
+Spec_Representation * CreateSpec(char ** file_line, int index) {
 	// Allocate Memory for Spec_Representation
 	Spec_Representation * new_spec_repr = malloc(sizeof(Spec_Representation));
-	
+	new_spec_repr->id = index;
+
 	// Set Target of Spec_Representation
 	new_spec_repr->target = malloc(sizeof(char) * LINE_BUFF_SIZE);
 	new_spec_repr->target = file_line[0];
@@ -48,4 +50,17 @@ void AddCommand(Spec_Representation * spec_repr, char ** file_line) {
 	}
 
 	return;
+}
+
+Spec_Representation * GetSpec(char * target, Spec_Representation ** nodes) {
+	int index = 0;
+	while (1) {
+		if (nodes[index] == NULL) {
+			break;
+		} else if (strcmp(target, nodes[index]->target) == 0) {
+			return nodes[index];
+		}
+		index++;
+	}
+	return NULL;
 }

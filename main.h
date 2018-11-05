@@ -22,6 +22,7 @@ typedef struct Parse_Outputs {
 } Parse_Output;
 
 typedef struct Spec_Representations {
+	int id;
 	char * target;
 	int num_dependencies;
 	char ** dependencies;

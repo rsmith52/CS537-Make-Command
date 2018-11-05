@@ -132,7 +132,7 @@ int main () {
                                 	nodes = temp;
                         	}
                 	}
-			nodes[spec_rep_index] = CreateSpec(parse_output->file_line_array);
+			nodes[spec_rep_index] = CreateSpec(parse_output->file_line_array, spec_rep_index);
 		
 		// Add Command to Spec_Representation when Command Line 'c'
 		} else if (parse_output->line_type == 'c') {
