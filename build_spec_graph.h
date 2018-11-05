@@ -12,6 +12,6 @@ typedef struct Spec_Graphs {
 
 /* Prototypes for Functions */
 
-Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes);
+Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_specs);
 
 #endif

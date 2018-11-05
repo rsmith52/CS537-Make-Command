@@ -64,3 +64,16 @@ Spec_Representation * GetSpec(char * target, Spec_Representation ** nodes) {
 	}
 	return NULL;
 }
+
+int GetSpecIndex(char * target, Spec_Representation ** nodes) {
+	int index = 0;
+        while (1) {
+                if (nodes[index] == NULL) {
+                        break;
+                } else if (strcmp(target, nodes[index]->target) == 0) {
+                        return index;
+                }
+                index++;
+        }
+        return -1;
+}
