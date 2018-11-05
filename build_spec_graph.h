@@ -3,6 +3,7 @@
 #define BUILDSPECGRAPH_H_INCLUDED
 /* Include Guards ^^^ */
 #include "main.h"
+#include "build_spec_repr.h"
 /* Prototypes for Variables */
 
 typedef struct Spec_Graphs {

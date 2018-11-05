@@ -54,10 +54,13 @@ void AddCommand(Spec_Representation * spec_repr, char ** file_line) {
 
 Spec_Representation * GetSpec(char * target, Spec_Representation ** nodes) {
 	int index = 0;
+	// Go through all nodes to see if matching target is found
 	while (1) {
 		if (nodes[index] == NULL) {
+			// Node with matching target not found, return NULL
 			break;
 		} else if (strcmp(target, nodes[index]->target) == 0) {
+			// Return node with matching target
 			return nodes[index];
 		}
 		index++;
@@ -67,11 +70,14 @@ Spec_Representation * GetSpec(char * target, Spec_Representation ** nodes) {
 
 int GetSpecIndex(char * target, Spec_Representation ** nodes) {
 	int index = 0;
-        while (1) {
+        // Go through all nodes to see if matching target found
+	while (1) {
                 if (nodes[index] == NULL) {
-                        break;
+                        // Node with matching target not found, return -1
+			break;
                 } else if (strcmp(target, nodes[index]->target) == 0) {
-                        return index;
+                        // Return node with matching target's index
+			return index;
                 }
                 index++;
         }
