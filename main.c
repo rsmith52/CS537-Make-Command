@@ -175,8 +175,10 @@ int main (int argc, char * argv[]) {
 	}
 
 	// Traverse Graph Calling CreateProcess + ExecuteProgram
-	
+	Spec_Representation ** build_order_list = TraverseGraph(spec_graph, start_spec);
 
+	// Create and Execute Processes if Necessary
+	
 	return 0;
 
 

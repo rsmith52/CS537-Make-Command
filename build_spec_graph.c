@@ -7,6 +7,7 @@ Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_nodes) {
 	// Initialize Graph Struct
 	Spec_Graph * graph = malloc(sizeof(Spec_Graph));
 	graph->graph_nodes = nodes;
+	graph->dimension = num_nodes;
 	graph->adj_matrix = malloc(sizeof(int *) * num_nodes);
 	for (int i = 0; i < num_nodes; i++) {
 		graph->adj_matrix[i] = malloc(sizeof(int) * num_nodes);
@@ -46,17 +47,50 @@ Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_nodes) {
 	return graph;
 }
 
-Spec_Representation ** TraverseGraph(Spec_Graph graph, Spec_Representation start_point) {
-
-	return NULL;
+Spec_Representation ** TraverseGraph(Spec_Graph * graph, Spec_Representation * start_point) {
+	Spec_Representation ** build_order_list = malloc(sizeof(Spec_Representation *) * graph->dimension);
+	RecursiveTraversal(graph, start_point, build_order_list);
+	return build_order_list;
 }
 
-Spec_Representation ** RecursiveTraversal(Spec_Graph graph, Spec_Representation start_point, Spec_Representation ** build_list) {
+void RecursiveTraversal(Spec_Graph * graph, Spec_Representation * start_point, Spec_Representation ** build_list) {
+	// Base Case: No Dependents
+	if (start_point->num_dependencies == 0) {
+		// Add Spec_Representation to Build List
+		AddToList(build_list, start_point);
+	// Recursive Case: Has Dependents
+	} else {
+		for (int i = 0; i < start_point->num_dependencies; i++) {
+			Spec_Representation * dependency = GetSpec(start_point->dependencies[i], graph->graph_nodes);
+			if (dependency == NULL) {
+				// Nothing to build for that dependency (No Spec)
+			} else {
+				RecursiveTraversal(graph, dependency, build_list);
+			}
+		}
+		AddToList(build_list, start_point);
+	}
+
+	return;
+}
+
+void AddToList(Spec_Representation ** build_list, Spec_Representation * addition) {
 	
-	return NULL;
-}
-
-Spec_Representation ** AddToList(Spec_Representation ** build_list, Spec_Representation * addition) {
-
-	return NULL;
+	Spec_Representation * curr;
+	int index = 0;
+	int list_size = sizeof(build_list[0])/sizeof(build_list);
+	while (1) {
+		curr = build_list[index];
+		if (curr == NULL) {
+			build_list[index] = addition;
+			break;
+		}
+		index++;
+		if (index > list_size) {
+			// Reached End of List
+			fprintf(stderr, "Tried Adding Too Many Elements to List. Traversal Failed.\n");
+			exit(1);
+		}
+	}
+	return;
 }
