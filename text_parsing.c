@@ -8,11 +8,11 @@ int main (int argc, char *argv) {
 	Parse_Input *input = malloc(sizeof(Parse_Input));
 	input->file_line = malloc(sizeof(char) * LINE_BUFF_SIZE);
 	
-	strcpy(input->file_line, "Hello, how is it going?\n");
+	strcpy(input->file_line, "Hello: how is it going?\n");
 
 	ParseText(input);
 
-	//printf("%s\n", input->file_line);
+	return 1;
 }
 
 Parse_Output * ParseText(Parse_Input * input) {
@@ -29,7 +29,6 @@ Parse_Output * ParseText(Parse_Input * input) {
 	for (int j = 0; j < LINE_BUFF_SIZE; j++) {
 		file_char = input->file_line[j];
 		if (file_char == '\40' || file_char == '\n') {
-			printf("%s\n", output->file_line_array[output_word]);
 			output_word++;
 			output_word_size = 0;
 		} else {
@@ -45,12 +44,17 @@ Parse_Output * ParseText(Parse_Input * input) {
 	} else {
 		for (int k = 0; k < LINE_BUFF_SIZE; k++) {
 			if (output->file_line_array[0][k] == 0) {
-				if (output->file_line_array[0][k - 1] == ':') {
+				if (output->file_line_array[0][k - 1] == '\72') {
 					output->line_type = 'c';
+				} else {
+					output->line_type = 'e';
 				}
+				break;
 			}
 		}
 	}
 
-	return NULL;
+	printf("%c\n", output->line_type);
+
+	return output;
 }
