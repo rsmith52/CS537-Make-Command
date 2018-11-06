@@ -9,7 +9,7 @@
 const int LINE_BUFF_SIZE = 1024;
 const int BASE_LIST_SIZE = 10;
 
-int main () {
+int main (int argc, char * argv[]) {
 	// Determine if File Exists
 	if ((access("makefile", F_OK) != -1) || (access("Makefile", F_OK) != -1)) {
 		// File Exists
@@ -64,8 +64,10 @@ int main () {
 				parse_output->line_num = 0;
 				parse_output->line_type = 't';
 				array[0] = "537ps";
-				array[1] = "dependence1";
-				array[2] = "dependence2";
+				array[1] = "537ps.o";
+				array[2] = "readproc.o";
+				array[3] = "parseopts.o";
+				array[4] = "output.o";
 				parse_output->file_line_array = array;
 				break;
 			case 1 :
@@ -97,8 +99,8 @@ int main () {
 				parse_output->line_num = 4;
 				parse_output->line_type = 't';
 				array[0] = "537ps.o";
-				array[1] = "dependence1";
-				array[2] = "dependence2";
+				array[1] = "537ps.c";
+				array[2] = "537ps.h";
 				parse_output->file_line_array = array;
 				break;
 			case 5 : 
@@ -153,10 +155,28 @@ int main () {
 	
 	// Build Graph of Spec_Representations
 	Spec_Graph * spec_graph = BuildSpecGraph(nodes, spec_rep_index + 1);
-	printf("Got past build graph\n");
+
+	// Get Starting Point
+	Spec_Representation * start_spec;
+	if (argc == 1) {
+		// No command line arguments - Start with 1st Spec_Representation
+		start_spec = nodes[0];
+	} else if (argc == 2) {
+		// Get Spec_Representation - Start there
+		start_spec = GetSpec(argv[1], nodes);
+		if (start_spec == NULL) {
+			fprintf(stderr, "No Build Specification Found: %s\n", argv[1]);
+			exit(1);
+		}	
+	} else {
+		// Invalid number of arguments given - Print Error
+		fprintf(stderr, "Incorrect Number of Arguments Given\n");
+		exit(1);
+	}
 
 	// Traverse Graph Calling CreateProcess + ExecuteProgram
 	
+
 	return 0;
 
 

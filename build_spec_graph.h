@@ -15,4 +15,10 @@ typedef struct Spec_Graphs {
 
 Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_specs);
 
+Spec_Representation ** TraverseGraph(Spec_Graph graph, Spec_Representation start_point);
+
+Spec_Representation ** RecursiveTraversal(Spec_Graph graph, Spec_Representation start_point, Spec_Representation ** build_list);
+
+Spec_Representation ** AddToList(Spec_Representation ** build_list, Spec_Representation * addition);
+
 #endif
