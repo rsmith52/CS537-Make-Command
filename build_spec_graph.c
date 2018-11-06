@@ -7,7 +7,10 @@ Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_nodes) {
 	// Initialize Graph Struct
 	Spec_Graph * graph = malloc(sizeof(Spec_Graph));
 	graph->graph_nodes = nodes;
-	graph->adj_matrix = malloc((sizeof(int) * num_nodes) * num_nodes);
+	graph->adj_matrix = malloc(sizeof(int *) * num_nodes);
+	for (int i = 0; i < num_nodes; i++) {
+		graph->adj_matrix[i] = malloc(sizeof(int) * num_nodes);
+	}	
 	
 	// Build Adjacency Matrix
 	// [i][j] = 1 -> i depends on j

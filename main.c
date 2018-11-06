@@ -106,6 +106,8 @@ int main () {
 				parse_output->line_type = 'e';
 				parse_output->file_line_array = array;
 				break;
+			default :
+				parse_output = NULL;
 		}
 		
 		// ----------------------------------------------------------- //
@@ -116,12 +118,12 @@ int main () {
 		if (parse_output == NULL) {
 			// Error in Line
 			fprintf(stderr, "%d: Invalid line: %s", parse_input->line_num, parse_input->file_line);		
-			exit(1);
+			//exit(1);
 		}
 	
 		// Build Spec_Representation
 		// Create new Spec_Representation when Target Line 't'
-		if (parse_output->line_type == 't') {
+		else if (parse_output->line_type == 't') {
 			// Allocate More Memory for List if Needed
                 	if (++spec_rep_index > (curr_spec_repr_size - 1)) {
                         	curr_spec_repr_size = curr_spec_repr_size * 2;
@@ -145,12 +147,13 @@ int main () {
 		// If Anything Else Happened Throw Error
 		} else {
 			fprintf(stderr, "%d: Invalid line: %s", parse_input->line_num, parse_input->file_line);
-			exit(1);
+			//exit(1);
 		}
 	}
-
+	
 	// Build Graph of Spec_Representations
-	Spec_Graph * spec_graph = BuildSpecGraph(nodes, spec_rep_index);
+	Spec_Graph * spec_graph = BuildSpecGraph(nodes, spec_rep_index + 1);
+	printf("Got past build graph\n");
 
 	// Traverse Graph Calling CreateProcess + ExecuteProgram
 	

@@ -15,7 +15,7 @@ Spec_Representation * CreateSpec(char ** file_line, int index) {
 	new_spec_repr->dependencies = malloc(sizeof(char *) * LINE_BUFF_SIZE); 
 	new_spec_repr->num_dependencies = 0;
 	while (file_line[new_spec_repr->num_dependencies + 1][0] != '\0') {
-		new_spec_repr->dependencies[new_spec_repr->num_dependencies + 1] = file_line[new_spec_repr->num_dependencies + 1];
+		new_spec_repr->dependencies[new_spec_repr->num_dependencies] = file_line[new_spec_repr->num_dependencies + 1];
 		new_spec_repr->num_dependencies++;
 	}
 
