@@ -28,7 +28,7 @@ typedef struct Spec_Representations {
 	char ** dependencies;
 	int curr_commands_size;
 	int num_commands;
-	char ** commands;
+	char *** commands;
 } Spec_Representation;
 
 #endif

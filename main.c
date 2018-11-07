@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -9,6 +10,7 @@
 #include "text_parsing.h"
 #include "build_spec_repr.h"
 #include "build_spec_graph.h"
+#include "proc_creation_prog_exe.h"
 
 const int LINE_BUFF_SIZE = 1024;
 const int BASE_LIST_SIZE = 10;
@@ -22,7 +24,8 @@ int main (int argc, char * argv[]) {
 			makefile = fopen("makefile", "r");
 		} else if (access("Makefile", R_OK) != -1) {
 			// Makefile Can Be Read
-			makefile = fopen("Makefile", "r");
+			//makefile = fopen("Makefile", "r");
+			makefile = fopen("make2", "r");
 		} else {
 			// File Cannot Be Read
 			fprintf(stderr, "Makefile Cannot Be Read\n");
@@ -34,17 +37,27 @@ int main (int argc, char * argv[]) {
 
 	// Feed Lines of Makefile to Text Parser + Build Spec_Representations
 	Spec_Representation ** nodes = malloc(sizeof(Spec_Representation) * BASE_LIST_SIZE);
-	int line_number = 0;
+	int line_number = 1;
 	int spec_rep_index = -1;
 	int curr_spec_repr_size = BASE_LIST_SIZE;
 	Spec_Representation ** temp;
 	while (1) {
 		// Get Next Line from File
+		char * detect_too_long = malloc(sizeof(char) * (LINE_BUFF_SIZE + 1));
 		char * curr_line = malloc(sizeof(char) * LINE_BUFF_SIZE);
-		if (fgets(curr_line, LINE_BUFF_SIZE, makefile) == NULL) {
+		if (fgets(detect_too_long, LINE_BUFF_SIZE + 1, makefile) == NULL) {
 			// End of File Reached
 			break;
 		}
+		if ((int)strlen(detect_too_long) > LINE_BUFF_SIZE - 1) {
+			fprintf(stderr, "%d: Line exceeds buffer of: %d\n", line_number, LINE_BUFF_SIZE);
+			exit(1);
+		} else {
+			for (int i = 0; i < LINE_BUFF_SIZE; i++) {
+				curr_line[i] = detect_too_long[i];
+			}
+		}
+		
 		// Create Parse_Input Object
 		Parse_Input * parse_input = malloc(sizeof(Parse_Input));
 		parse_input->line_num = line_number++;
@@ -54,98 +67,12 @@ int main (int argc, char * argv[]) {
 		Parse_Output * parse_output;
 		parse_output = ParseText(parse_input);
 	
-		// ----------------------------------------------------------- //
-		// Test Section Until ParseText is Done ---------------------- //
-		// ----------------------------------------------------------- //
-		
-		parse_output = malloc(sizeof(Parse_Output));
-		char ** array = malloc(sizeof(char *) * LINE_BUFF_SIZE);
-		for (int i = 0; i < LINE_BUFF_SIZE; i++) {
-			array[i] = malloc(sizeof(char) * LINE_BUFF_SIZE);
-		}
-		switch (parse_input->line_num) {
-			case 0 :
-				parse_output->line_num = 0;
-				parse_output->line_type = 't';
-				array[0] = "537make";
-				array[1] = "main.o";
-				array[2] = "text_parsing.o";
-				array[3] = "build_spec_repr.o";
-				array[4] = "build_spec_graph.o";
-				array[5] = "proc_creation_prog_exe.o";
-				parse_output->file_line_array = array;
-				break;
-			case 1 :
-				parse_output->line_num = 1;
-				parse_output->line_type = 'c';
-				array[0] = "gcc";
-				array[1] = "-o";
-				array[2] = "537make";
-				array[3] = "main.o";
-				array[4] = "text_parsing.o";
-				array[5] = "build_spec_repr.o";
-				array[6] = "build_spec_graph.o";
-				array[7] = "proc_creation_prog_exe.o";
-				parse_output->file_line_array = array;
-				break;
-			case 2 :
-				parse_output->line_num = 3;
-				parse_output->line_type = 'e';
-				parse_output->file_line_array = array;
-				break;
-			case 3 :
-				parse_output->line_num = 4;
-				parse_output->line_type = 't';
-				array[0] = "main.o";
-				array[1] = "main.c";
-				array[2] = "main.h";
-				array[3] = "text_parsing.h";
-				array[4] = "build_spec_repr.h";
-				array[5] = "build_spec_graph.h";
-				array[6] = "proc_creation_prog_exe.h";
-				parse_output->file_line_array = array;
-				break;
-			case 4 : 
-				parse_output->line_num = 5;
-				parse_output->line_type = 'c';
-				array[0] = "gcc";
-				array[1] = "-c";
-				array[2] = "main.c";
-				array[3] = "main.h";
-				parse_output->file_line_array = array;
-				break;
-			case 5 :
- 				parse_output->line_num = 6;
-                                parse_output->line_type = 'e';
-                                parse_output->file_line_array = array;
-                                break;
-			case 6 :
-				parse_output->line_num = 7;
-				parse_output->line_type = 't';
-				array[0] = "build_spec_graph.o";
-				array[1] = "build_spec_graph.c";
-				array[2] = "build_spec_graph.h";
-				parse_output->file_line_array = array;
-				break;
-			case 7 : 
-				parse_output->line_num = 8;
-				parse_output->line_type = 'c';
-				array[0] = "gcc";
-                                array[1] = "-c";
-                                array[2] = "build_spec_graph.c";
-			default :
-				parse_output = NULL;
-		}
-		
-		// ----------------------------------------------------------- //
-		// End Test Section ------------------------------------------ //
-		// ----------------------------------------------------------- //
 
 		// Throw Error if ParseText Found One
 		if (parse_output == NULL) {
 			// Error in Line
 			fprintf(stderr, "%d: Invalid line: %s", parse_input->line_num, parse_input->file_line);		
-			//exit(1);
+			exit(1);
 		}
 	
 		// Build Spec_Representation
@@ -174,19 +101,12 @@ int main (int argc, char * argv[]) {
 		// If Anything Else Happened Throw Error
 		} else {
 			fprintf(stderr, "%d: Invalid line: %s", parse_input->line_num, parse_input->file_line);
-			//exit(1);
+			exit(1);
 		}
 	}
 	
 	// Build Graph of Spec_Representations
 	Spec_Graph * spec_graph = BuildSpecGraph(nodes, spec_rep_index + 1);
-
-	for (int i = 0; i < spec_graph->dimension; i++) {
-		for (int j = 0; j < spec_graph->dimension; j++) {
-			printf("%d ", spec_graph->adj_matrix[i][j]);
-		}
-		printf("\n");
-	}
 
 	// Get Starting Point
 	Spec_Representation * start_spec;
@@ -208,9 +128,6 @@ int main (int argc, char * argv[]) {
 
 	// Traverse Graph to Get Build Order
 	Spec_Representation ** build_order_list = TraverseGraph(spec_graph, start_spec);
-	for (int i = 0; i < spec_graph->dimension; i++) {
-		printf("%s\n", build_order_list[i]->target);
-	}
 
 	// Create and Execute Processes if Necessary
 	int should_build = 0;
@@ -253,6 +170,7 @@ int main (int argc, char * argv[]) {
 		if (should_build) {
 			// Call Build Command
 			printf("Build Command Call: %s\n", build_order_list[i]->target);
+			ExecuteBuild(build_order_list[i]);
 		} else {
 			printf("Don't Build: %s\n", build_order_list[i]->target);
 		}

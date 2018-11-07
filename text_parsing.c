@@ -26,6 +26,10 @@ Parse_Output * ParseText(Parse_Input * input) {
 	int output_word_size = 0;
 	char file_char;
 
+	if (input->file_line[0] == '\40') {
+		return NULL;
+	}
+
 	for (int j = 0; j < LINE_BUFF_SIZE; j++) {
 		file_char = input->file_line[j];
 		if (file_char == '\40' || file_char == '\n') {
@@ -37,21 +41,19 @@ Parse_Output * ParseText(Parse_Input * input) {
 		}
 	}
 
-	char last_char;
-
 	if (output->file_line_array[0][0] == '\t') {
 		for (int i = 0; i < LINE_BUFF_SIZE - 1; i++) {
 			output->file_line_array[0][i] = output->file_line_array[0][i + 1];
 		}
 		output->line_type = 'c';
-	} else if (output->file_line_array[0][0] == '\n' || 
-			output->file_line_array == EOF) {
+	} else if (output->file_line_array[0][0] == 0 || output->file_line_array[0][0] == '\0') {
 		output->line_type = 'e';
 	} else if (output->file_line_array[0][0] != '\40') {
 		for (int k = 0; k < LINE_BUFF_SIZE; k++) {
 			if (output->file_line_array[0][k] == 0) {
 				if (output->file_line_array[0][k - 1] == '\72') {
 					output->line_type = 't';
+					output->file_line_array[0][k - 1] = 0;
 					break;
 				} else {
 					return NULL;
