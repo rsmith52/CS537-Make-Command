@@ -4,16 +4,16 @@
 #include "text_parsing.h"
 #include "main.h"
 
-int main (int argc, char *argv) {
+/*int main (int argc, char *argv) {
 	Parse_Input *input = malloc(sizeof(Parse_Input));
 	input->file_line = malloc(sizeof(char) * LINE_BUFF_SIZE);
 	
-	strcpy(input->file_line, "Hello: how is it going?\n");
+	strcpy(input->file_line, "\tHello how is it going?\n");
 
 	ParseText(input);
 
 	return 1;
-}
+}*/
 
 Parse_Output * ParseText(Parse_Input * input) {
 	Parse_Output *output = malloc(sizeof(Parse_Output));
@@ -40,21 +40,27 @@ Parse_Output * ParseText(Parse_Input * input) {
 	char last_char;
 
 	if (output->file_line_array[0][0] == '\t') {
-		output->line_type = 't';
-	} else {
+		for (int i = 0; i < LINE_BUFF_SIZE - 1; i++) {
+			output->file_line_array[0][i] = output->file_line_array[0][i + 1];
+		}
+		output->line_type = 'c';
+	} else if (output->file_line_array[0][0] == '\n' || 
+			output->file_line_array == EOF) {
+		output->line_type = 'e';
+	} else if (output->file_line_array[0][0] != '\40') {
 		for (int k = 0; k < LINE_BUFF_SIZE; k++) {
 			if (output->file_line_array[0][k] == 0) {
 				if (output->file_line_array[0][k - 1] == '\72') {
-					output->line_type = 'c';
+					output->line_type = 't';
+					break;
 				} else {
-					output->line_type = 'e';
+					return NULL;
 				}
-				break;
 			}
 		}
+	} else {
+		return NULL;
 	}
-
-	printf("%c\n", output->line_type);
 
 	return output;
 }
