@@ -25,7 +25,7 @@ int main (int argc, char * argv[]) {
 		} else if (access("Makefile", R_OK) != -1) {
 			// Makefile Can Be Read
 			//makefile = fopen("Makefile", "r");
-			makefile = fopen("make2", "r");
+			makefile = fopen("Makefile", "r");
 		} else {
 			// File Cannot Be Read
 			fprintf(stderr, "Makefile Cannot Be Read\n");
@@ -85,7 +85,7 @@ int main (int argc, char * argv[]) {
                         	if (temp == NULL) {
                                 	fprintf(stderr, "Memory Reallocation Failed.\n");
                         	} else {
-                                	printf("Reallocated Memory Successfully.\n");
+                                	//printf("Reallocated Memory Successfully.\n");
                                 	nodes = temp;
                         	}
                 	}
@@ -130,6 +130,7 @@ int main (int argc, char * argv[]) {
 	Spec_Representation ** build_order_list = TraverseGraph(spec_graph, start_spec);
 
 	// Create and Execute Processes if Necessary
+	int build_count = 0;
 	int should_build = 0;
 	struct stat file_stats;
 	struct stat dep_file_stats;
@@ -157,7 +158,7 @@ int main (int argc, char * argv[]) {
 					exit(1);
 				}
 				dependency_time = dep_file_stats.st_mtim;
-				if (dependency_time.tv_sec < target_time.tv_sec) {
+				if (dependency_time.tv_sec > target_time.tv_sec) {
 					// Dependency Newer, Needs Update
 					should_build = 1;
 					break;
@@ -169,12 +170,15 @@ int main (int argc, char * argv[]) {
 		}
 		if (should_build) {
 			// Call Build Command
-			printf("Build Command Call: %s\n", build_order_list[i]->target);
+			build_count++;
 			ExecuteBuild(build_order_list[i]);
-		} else {
-			printf("Don't Build: %s\n", build_order_list[i]->target);
 		}
 	}
+
+	// If Nothing Built Alert
+	if (build_count == 0) {
+		printf("537make: '%s' is up to date.\n", build_order_list[spec_graph->dimension - 1]->target);
+ 	}
 	
 	return 0;
 

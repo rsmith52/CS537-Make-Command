@@ -34,7 +34,7 @@ void AddCommand(Spec_Representation * spec_repr, char ** file_line) {
                 if (temp == NULL) {
                 	fprintf(stderr, "Memory Reallocation Failed.\n");
                 } else {
-                	printf("Reallocated Memory Successfully.\n");
+                	//printf("Reallocated Memory Successfully.\n");
                         spec_repr->commands = temp;
                 }
         }

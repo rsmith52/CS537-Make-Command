@@ -33,6 +33,26 @@ Parse_Output * ParseText(Parse_Input * input) {
 	for (int j = 0; j < LINE_BUFF_SIZE; j++) {
 		file_char = input->file_line[j];
 		if (file_char == '\40' || file_char == '\n') {
+			while (input->file_line[j + 1] == '\40') {
+				j++;
+			}
+			if (input->file_line[j + 1] == '\72') {
+				output->file_line_array[output_word][output_word_size] = input->file_line[j + 1];
+				output_word++;
+				output_word_size = 0;
+				j++;
+				while (input->file_line[j + 1] == '\40') {
+					j++;
+				}
+			} else {
+				output_word++;
+				output_word_size = 0;
+			}
+		} else if (file_char == '\72') {
+			output->file_line_array[output_word][output_word_size] = file_char;
+			while (input->file_line[j + 1] == '\40') {
+				j++;
+			}
 			output_word++;
 			output_word_size = 0;
 		} else {

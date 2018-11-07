@@ -20,6 +20,6 @@ Spec_Representation ** TraverseGraph(Spec_Graph * graph, Spec_Representation * s
 
 void RecursiveTraversal(Spec_Graph * graph, Spec_Representation * start_point, Spec_Representation ** build_list);
 
-void AddToList(Spec_Representation ** build_list, Spec_Representation * addition);
+void AddToList(Spec_Representation ** build_list, Spec_Representation * addition, Spec_Graph * graph);
 
 #endif

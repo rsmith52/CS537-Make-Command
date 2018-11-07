@@ -1,1 +1,7 @@
-Write your README here
+Rebuilt a basic version of the make command called 537make.
+
+Ray - I built the Build_Spec_Repr and Build_Spec_Graph files which handled creating objects for each build specification, and building/traversing the build graph. I also did some of the work on main and some of the work on process creation/program execution.
+
+Nate - I built the Text_Parser files which handled all text parsing of the makefile and detecting error cases with invalid lines. I also did some of the work on the main and some of the work on process creation/program execution.
+
+Both of us ran through testing and fixing bugs.

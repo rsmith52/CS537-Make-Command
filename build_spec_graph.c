@@ -57,7 +57,7 @@ void RecursiveTraversal(Spec_Graph * graph, Spec_Representation * start_point, S
 	// Base Case: No Dependents
 	if (start_point->num_dependencies == 0) {
 		// Add Spec_Representation to Build List
-		AddToList(build_list, start_point);
+		AddToList(build_list, start_point, graph);
 	// Recursive Case: Has Dependents
 	} else {
 		for (int i = 0; i < start_point->num_dependencies; i++) {
@@ -68,24 +68,27 @@ void RecursiveTraversal(Spec_Graph * graph, Spec_Representation * start_point, S
 				RecursiveTraversal(graph, dependency, build_list);
 			}
 		}
-		AddToList(build_list, start_point);
+		AddToList(build_list, start_point, graph);
 	}
 
 	return;
 }
 
-void AddToList(Spec_Representation ** build_list, Spec_Representation * addition) {
+void AddToList(Spec_Representation ** build_list, Spec_Representation * addition, Spec_Graph * graph) {
 	
 	Spec_Representation * curr;
 	int index = 0;
 	while (1) {
+		if (index == graph->dimension) {
+			fprintf(stderr, "Cycle Detected, Make Failed\n");
+			exit(1);
+		}
 		curr = build_list[index];
 		if (curr == NULL) {
 			build_list[index] = addition;
 			break;
 		}
 		index++;
-		// TODO: BREAK AT END OF LIST
 	}
 	return;
 }

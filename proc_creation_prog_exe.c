@@ -8,9 +8,9 @@
 void ExecuteBuild(Spec_Representation * build_target) {
 
 	for (int i = 0; i < build_target->num_commands; i++) {
-		int status;
-		int fork_return;
-		
+		pid_t pid;
+		int stat;
+
 		int num_args = 0;
 		for (int j = 0; j < LINE_BUFF_SIZE; j++) {
 			if (build_target->commands[i][j][0] == '\0') {
@@ -20,24 +20,28 @@ void ExecuteBuild(Spec_Representation * build_target) {
 				num_args++;
 			}
 		}
-		char ** args = malloc(sizeof(char *) * num_args);
+		char ** args = malloc(sizeof(char *) * (num_args + 1));
 		for (int j = 0; j < num_args; j++) {
 			args[j] = build_target->commands[i][j];
+			if (j == (num_args - 1)) {
+				args[j + 1] = NULL;
+			}
 		}
 		
-		fork_return = fork();
-        	if (fork_return == -1) {
-                	// Failed
-                	fprintf(stderr, "Fork Failed\n");
-        	} else if (fork_return == 0) {
+        	if ((pid = fork()) == 0) {
                 	// Child Process
-			execvp(build_target->commands[i][0], args);
+			for (int j = 0; j < num_args; j++) {
+				printf("%s", args[j]);
+				if (j != (num_args - 1)) {
+					printf(" ");
+				}
+			}
+			printf("\n");	
+			execvp(args[0], args);
 			exit(0);
         	} else {
                 	// Parent Process - fork_return holds child process PID
-			while (wait(&status) != fork_return) {
-				// Wait for Child to Finish
-			}
+			waitpid(pid, &stat, 0);
         	}
 	}
 		
