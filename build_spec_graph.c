@@ -78,7 +78,6 @@ void AddToList(Spec_Representation ** build_list, Spec_Representation * addition
 	
 	Spec_Representation * curr;
 	int index = 0;
-	int list_size = sizeof(build_list[0])/sizeof(build_list);
 	while (1) {
 		curr = build_list[index];
 		if (curr == NULL) {
@@ -86,11 +85,7 @@ void AddToList(Spec_Representation ** build_list, Spec_Representation * addition
 			break;
 		}
 		index++;
-		if (index > list_size) {
-			// Reached End of List
-			fprintf(stderr, "Tried Adding Too Many Elements to List. Traversal Failed.\n");
-			exit(1);
-		}
+		// TODO: BREAK AT END OF LIST
 	}
 	return;
 }

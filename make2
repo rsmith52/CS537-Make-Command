@@ -1,0 +1,17 @@
+537make: main.o build_spec_graph.o text_parsing.o build_spec_repr.o proc_creation_prog_exe.o
+	gcc -o 537make main.o build_spec_graph.o text_parsing.o build_spec_repr.o proc_creation_prog_exe.o
+
+main.o: main.c main.h build_spec_graph.h text_parsing.h build_spec_repr.h proc_creation_prog_exe.h
+	gcc -c main.c main.h
+
+build_spec_graph.o: build_spec_graph.c build_spec_graph.h
+	gcc -c build_spec_graph.c
+
+text_parsing.o: text_parsing.c text_parsing.h
+	gcc -c text_parsing.c
+
+build_spec_repr.o: build_spec_repr.c build_spec_repr.h
+	gcc -c build_spec_repr.c
+
+proc_creation_prog_exe.o: proc_creation_prog_exe.c proc_creation_prog_exe.h
+	gcc -c proc_creation_prog_exe.c
