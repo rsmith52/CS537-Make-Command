@@ -89,31 +89,50 @@ int main (int argc, char * argv[]) {
 				parse_output->file_line_array = array;
 				break;
 			case 2 :
-				parse_output->line_num = 2;
-				parse_output->line_type = 'c';
-				array[0] = "echo";
-				array[1] = "built";
-				array[2] = "successfully....";
-				parse_output->file_line_array = array;
-				break;
-			case 3 :
 				parse_output->line_num = 3;
 				parse_output->line_type = 'e';
 				parse_output->file_line_array = array;
 				break;
-			case 4 :
+			case 3 :
 				parse_output->line_num = 4;
 				parse_output->line_type = 't';
 				array[0] = "main.o";
 				array[1] = "main.c";
 				array[2] = "main.h";
+				array[3] = "text_parsing.h";
+				array[4] = "build_spec_repr.h";
+				array[5] = "build_spec_graph.h";
+				array[6] = "proc_creation_prog_exe.h";
 				parse_output->file_line_array = array;
 				break;
-			case 5 : 
+			case 4 : 
 				parse_output->line_num = 5;
-				parse_output->line_type = 'e';
+				parse_output->line_type = 'c';
+				array[0] = "gcc";
+				array[1] = "-c";
+				array[2] = "main.c";
+				array[3] = "main.h";
 				parse_output->file_line_array = array;
 				break;
+			case 5 :
+ 				parse_output->line_num = 6;
+                                parse_output->line_type = 'e';
+                                parse_output->file_line_array = array;
+                                break;
+			case 6 :
+				parse_output->line_num = 7;
+				parse_output->line_type = 't';
+				array[0] = "build_spec_graph.o";
+				array[1] = "build_spec_graph.c";
+				array[2] = "build_spec_graph.h";
+				parse_output->file_line_array = array;
+				break;
+			case 7 : 
+				parse_output->line_num = 8;
+				parse_output->line_type = 'c';
+				array[0] = "gcc";
+                                array[1] = "-c";
+                                array[2] = "build_spec_graph.c";
 			default :
 				parse_output = NULL;
 		}
@@ -162,6 +181,13 @@ int main (int argc, char * argv[]) {
 	// Build Graph of Spec_Representations
 	Spec_Graph * spec_graph = BuildSpecGraph(nodes, spec_rep_index + 1);
 
+	for (int i = 0; i < spec_graph->dimension; i++) {
+		for (int j = 0; j < spec_graph->dimension; j++) {
+			printf("%d ", spec_graph->adj_matrix[i][j]);
+		}
+		printf("\n");
+	}
+
 	// Get Starting Point
 	Spec_Representation * start_spec;
 	if (argc == 1) {
@@ -182,6 +208,9 @@ int main (int argc, char * argv[]) {
 
 	// Traverse Graph to Get Build Order
 	Spec_Representation ** build_order_list = TraverseGraph(spec_graph, start_spec);
+	for (int i = 0; i < spec_graph->dimension; i++) {
+		printf("%s\n", build_order_list[i]->target);
+	}
 
 	// Create and Execute Processes if Necessary
 	int should_build = 0;
@@ -223,6 +252,9 @@ int main (int argc, char * argv[]) {
 		}
 		if (should_build) {
 			// Call Build Command
+			printf("Build Command Call: %s\n", build_order_list[i]->target);
+		} else {
+			printf("Don't Build: %s\n", build_order_list[i]->target);
 		}
 	}
 	
