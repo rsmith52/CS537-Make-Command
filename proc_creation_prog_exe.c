@@ -37,7 +37,9 @@ void ExecuteBuild(Spec_Representation * build_target) {
 				}
 			}
 			printf("\n");	
-			execvp(args[0], args);
+			if (execvp(args[0], args) < 0) {
+				fprintf(stderr, "Error Executing Command\n");
+			}
 			exit(0);
         	} else {
                 	// Parent Process - fork_return holds child process PID

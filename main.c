@@ -84,6 +84,7 @@ int main (int argc, char * argv[]) {
                         	temp = realloc(nodes, sizeof(Spec_Representation) * curr_spec_repr_size);
                         	if (temp == NULL) {
                                 	fprintf(stderr, "Memory Reallocation Failed.\n");
+					exit(1);
                         	} else {
                                 	//printf("Reallocated Memory Successfully.\n");
                                 	nodes = temp;
@@ -93,6 +94,11 @@ int main (int argc, char * argv[]) {
 		
 		// Add Command to Spec_Representation when Command Line 'c'
 		} else if (parse_output->line_type == 'c') {
+			if (spec_rep_index == -1) {
+				// Error in Line - Command First
+				fprintf(stderr, "%d: Invalid line, Command with no Target: %s", parse_input->line_num, parse_input->file_line);
+				exit(1);
+			}
 			AddCommand(nodes[spec_rep_index], parse_output->file_line_array);
 		
 		// Ignore Line When it is empty
@@ -108,6 +114,13 @@ int main (int argc, char * argv[]) {
 	// Build Graph of Spec_Representations
 	Spec_Graph * spec_graph = BuildSpecGraph(nodes, spec_rep_index + 1);
 
+	// Check for Cycles
+	int contains_cycle = ContainsCycles(spec_graph);
+	if (contains_cycle) {
+		fprintf(stderr, "Cycle Detected, Make Failed\n");
+                exit(1);
+	}
+	
 	// Get Starting Point
 	Spec_Representation * start_spec;
 	if (argc == 1) {
@@ -147,14 +160,14 @@ int main (int argc, char * argv[]) {
 			// File Exists, Check if Out of Date
 			// Get Target Time
 			if (lstat(build_order_list[i]->target, &file_stats) == -1) {
-				fprintf(stderr, "Reading from Stat Failed.\n");
+				fprintf(stderr, "Error: %s not found.\n", build_order_list[i]->target);
 				exit(1);
 			}
 			target_time = file_stats.st_mtim;
 			// Get Each Dependency Time
 			for (int j = 0; j < build_order_list[i]->num_dependencies; j++) {
 				if (lstat(build_order_list[i]->dependencies[j], &dep_file_stats) == -1) {
-					fprintf(stderr, "Reading from Stat Failed.\n");
+					fprintf(stderr, "Error: %s not found.\n", build_order_list[i]->dependencies[j]);
 					exit(1);
 				}
 				dependency_time = dep_file_stats.st_mtim;
@@ -174,11 +187,17 @@ int main (int argc, char * argv[]) {
 			ExecuteBuild(build_order_list[i]);
 		}
 	}
-
+	
 	// If Nothing Built Alert
-	if (build_count == 0) {
+	/*if (build_count == 0) {
 		printf("537make: '%s' is up to date.\n", build_order_list[spec_graph->dimension - 1]->target);
- 	}
+ 	} else if (build_count == 1) {
+		printf("In 1st if\n");
+		if (build_order_list[spec_graph->dimension - 1]->num_commands == 0) {
+			printf("In 2nd if\n");
+			printf("537make: Nothing to be done for '%s'.", build_order_list[spec_graph->dimension - 1]->target);
+		}
+	}*/
 	
 	return 0;
 

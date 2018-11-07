@@ -29,6 +29,8 @@ typedef struct Spec_Representations {
 	int curr_commands_size;
 	int num_commands;
 	char *** commands;
+	int temp_mark;
+	int perm_mark;
 } Spec_Representation;
 
 #endif

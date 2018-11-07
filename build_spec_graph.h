@@ -16,6 +16,10 @@ typedef struct Spec_Graphs {
 
 Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_specs);
 
+int ContainsCycles (Spec_Graph * graph);
+
+void Visit(Spec_Graph * graph, Spec_Representation * curr_point, Spec_Representation ** end_list);
+
 Spec_Representation ** TraverseGraph(Spec_Graph * graph, Spec_Representation * start_point);
 
 void RecursiveTraversal(Spec_Graph * graph, Spec_Representation * start_point, Spec_Representation ** build_list);

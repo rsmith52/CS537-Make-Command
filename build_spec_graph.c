@@ -43,8 +43,64 @@ Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_nodes) {
 			}
 		}
 	}
-	
 	return graph;
+}
+
+int ContainsCycles(Spec_Graph * graph) {
+	// Check Simple Case, Nodes Depend on Each Other
+	for (int i = 0; i < graph->dimension; i++) {
+		for (int j = 0; j < graph->dimension; j++) {
+			if (graph->adj_matrix[i][j] == 1 && graph->adj_matrix[j][i] == 1) {
+				// 2 Nodes Depend on Each Other
+				return 1;
+			}
+		}
+	}
+	// Advanced Case
+	// Create Topological Ordering List
+	Spec_Representation ** end_list = malloc(sizeof(Spec_Representation *) * graph->dimension);
+	// Unmark All Nodes
+	for (int i = 0; i < graph->dimension; i++) {
+		graph->graph_nodes[i]->temp_mark = 0;
+		graph->graph_nodes[i]->perm_mark = 0;
+	}
+	int unmarked_node_exists = 1;
+	while (unmarked_node_exists) {
+		Spec_Representation * next = NULL;
+		for (int i = 0; i < graph->dimension; i++) {
+			if (graph->graph_nodes[i]->temp_mark == 0 && graph->graph_nodes[i]->perm_mark == 0) {
+				next = graph->graph_nodes[i];
+				break;
+			}
+		}
+		if (next == NULL) {
+			unmarked_node_exists = 0;
+		} else {
+			Visit(graph, next, end_list);
+		}
+	}
+
+	return 0;
+}
+
+void Visit(Spec_Graph * graph, Spec_Representation * curr_point, Spec_Representation ** end_list) {
+	if (curr_point->perm_mark) {
+		return;
+	} else if (curr_point->temp_mark) {
+		fprintf(stderr, "Cycle Detected, Make Failed\n");
+                exit(1);
+	}
+	curr_point->temp_mark = 1;
+	for (int i = 0; i < curr_point->num_dependencies; i++) {
+		Spec_Representation * dependency = GetSpec(curr_point->dependencies[i], graph->graph_nodes);
+		if (dependency == NULL) {
+			// No Spec for that Dependency
+		} else {
+			Visit(graph, dependency, end_list);
+		}
+	}
+	curr_point->perm_mark = 1;
+	// Add to list
 }
 
 Spec_Representation ** TraverseGraph(Spec_Graph * graph, Spec_Representation * start_point) {
