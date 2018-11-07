@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <sys/sysmacros.h>
 #include "main.h"
 #include "text_parsing.h"
 #include "build_spec_repr.h"
@@ -63,11 +67,12 @@ int main (int argc, char * argv[]) {
 			case 0 :
 				parse_output->line_num = 0;
 				parse_output->line_type = 't';
-				array[0] = "537ps";
-				array[1] = "537ps.o";
-				array[2] = "readproc.o";
-				array[3] = "parseopts.o";
-				array[4] = "output.o";
+				array[0] = "537make";
+				array[1] = "main.o";
+				array[2] = "text_parsing.o";
+				array[3] = "build_spec_repr.o";
+				array[4] = "build_spec_graph.o";
+				array[5] = "proc_creation_prog_exe.o";
 				parse_output->file_line_array = array;
 				break;
 			case 1 :
@@ -75,11 +80,12 @@ int main (int argc, char * argv[]) {
 				parse_output->line_type = 'c';
 				array[0] = "gcc";
 				array[1] = "-o";
-				array[2] = "537ps";
-				array[3] = "537ps.o";
-				array[4] = "readproc.o";
-				array[5] = "parseopts.o";
-				array[6] = "output.o";
+				array[2] = "537make";
+				array[3] = "main.o";
+				array[4] = "text_parsing.o";
+				array[5] = "build_spec_repr.o";
+				array[6] = "build_spec_graph.o";
+				array[7] = "proc_creation_prog_exe.o";
 				parse_output->file_line_array = array;
 				break;
 			case 2 :
@@ -98,9 +104,9 @@ int main (int argc, char * argv[]) {
 			case 4 :
 				parse_output->line_num = 4;
 				parse_output->line_type = 't';
-				array[0] = "537ps.o";
-				array[1] = "537ps.c";
-				array[2] = "537ps.h";
+				array[0] = "main.o";
+				array[1] = "main.c";
+				array[2] = "main.h";
 				parse_output->file_line_array = array;
 				break;
 			case 5 : 
@@ -174,10 +180,51 @@ int main (int argc, char * argv[]) {
 		exit(1);
 	}
 
-	// Traverse Graph Calling CreateProcess + ExecuteProgram
+	// Traverse Graph to Get Build Order
 	Spec_Representation ** build_order_list = TraverseGraph(spec_graph, start_spec);
 
 	// Create and Execute Processes if Necessary
+	int should_build = 0;
+	struct stat file_stats;
+	struct stat dep_file_stats;
+	struct timespec target_time;
+	struct timespec dependency_time;
+	for (int i = 0; i < spec_graph->dimension; i++) {
+		should_build = 0;
+		if (build_order_list[i] == NULL) {
+			// Done with List Early (Not Full Build)
+			break;
+		}
+		// Check if Needs Build
+		if (access(build_order_list[i]->target, F_OK) != -1) {
+			// File Exists, Check if Out of Date
+			// Get Target Time
+			if (lstat(build_order_list[i]->target, &file_stats) == -1) {
+				fprintf(stderr, "Reading from Stat Failed.\n");
+				exit(1);
+			}
+			target_time = file_stats.st_mtim;
+			// Get Each Dependency Time
+			for (int j = 0; j < build_order_list[i]->num_dependencies; j++) {
+				if (lstat(build_order_list[i]->dependencies[j], &dep_file_stats) == -1) {
+					fprintf(stderr, "Reading from Stat Failed.\n");
+					exit(1);
+				}
+				dependency_time = dep_file_stats.st_mtim;
+				if (dependency_time.tv_sec < target_time.tv_sec) {
+					// Dependency Newer, Needs Update
+					should_build = 1;
+					break;
+				}
+			}
+		} else {
+			// File Does Not Exist, Definitely Build
+			should_build = 1;
+		}
+		if (should_build) {
+			// Call Build Command
+		}
+	}
 	
 	return 0;
 
