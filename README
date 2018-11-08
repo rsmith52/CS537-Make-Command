@@ -5,3 +5,7 @@ Ray - I built the Build_Spec_Repr and Build_Spec_Graph files which handled creat
 Nate - I built the Text_Parser files which handled all text parsing of the makefile and detecting error cases with invalid lines. I also did some of the work on the main and some of the work on process creation/program execution.
 
 Both of us ran through testing and fixing bugs.
+
+Our program also supports the extra credit options -f to name a make file, and comment lines starting with # being ignored.
+
+Clang returns 1 warning that we have thoughourly attempted to remove and can't, despite giving default values, making sure malloc succeeds, and checking for NULL values before accessing anything. We think Clang is wrong here, but can't prove it, and the program works on all test cases without crashing.

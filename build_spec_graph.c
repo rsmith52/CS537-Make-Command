@@ -18,7 +18,7 @@ Spec_Graph * BuildSpecGraph(Spec_Representation ** nodes, int num_nodes) {
 	// [i][j] = 0 -> i does not depend on j
 	Spec_Representation * temp_spec;
 	Spec_Representation * temp_spec_2;
-	char * dependency = malloc (sizeof(char) * LINE_BUFF_SIZE);
+	char * dependency;// = malloc (sizeof(char) * LINE_BUFF_SIZE);
 	int found = 0;
 	for (int i = 0; i < num_nodes; i++) {
 		// Set row
@@ -79,7 +79,7 @@ int ContainsCycles(Spec_Graph * graph) {
 			Visit(graph, next, end_list);
 		}
 	}
-
+	free (end_list);
 	return 0;
 }
 
@@ -105,6 +105,9 @@ void Visit(Spec_Graph * graph, Spec_Representation * curr_point, Spec_Representa
 
 Spec_Representation ** TraverseGraph(Spec_Graph * graph, Spec_Representation * start_point) {
 	Spec_Representation ** build_order_list = malloc(sizeof(Spec_Representation *) * graph->dimension);
+	for (int i = 0; i < graph->dimension; i++) {
+		build_order_list[i] = NULL;
+	}
 	RecursiveTraversal(graph, start_point, build_order_list);
 	return build_order_list;
 }
@@ -135,16 +138,17 @@ void AddToList(Spec_Representation ** build_list, Spec_Representation * addition
 	Spec_Representation * curr;
 	int index = 0;
 	while (1) {
-		if (index == graph->dimension) {
+		if (index >= graph->dimension) {
 			fprintf(stderr, "Cycle Detected, Make Failed\n");
 			exit(1);
+		} else {
+			curr = build_list[index];
+			if (curr == NULL) {
+				build_list[index] = addition;
+				break;
+			}
+			index++;
 		}
-		curr = build_list[index];
-		if (curr == NULL) {
-			build_list[index] = addition;
-			break;
-		}
-		index++;
 	}
 	return;
 }

@@ -20,7 +20,12 @@ void ExecuteBuild(Spec_Representation * build_target) {
 				num_args++;
 			}
 		}
+		if (num_args == 0) {
+			fprintf(stderr, "No Command to Execute\n");
+			exit(1);
+		}
 		char ** args = malloc(sizeof(char *) * (num_args + 1));
+		
 		for (int j = 0; j < num_args; j++) {
 			args[j] = build_target->commands[i][j];
 			if (j == (num_args - 1)) {
@@ -36,18 +41,17 @@ void ExecuteBuild(Spec_Representation * build_target) {
 					printf(" ");
 				}
 			}
-			printf("\n");	
-			if (execvp(args[0], args) < 0) {
+			printf("\n");
+			int ret_val = execvp(args[0], args);
+			if (ret_val < 0) {
 				fprintf(stderr, "Error Executing Command\n");
 			}
 			exit(0);
         	} else {
                 	// Parent Process - fork_return holds child process PID
+			free(args);
 			waitpid(pid, &stat, 0);
         	}
 	}
-		
-
-
 	return;
 }

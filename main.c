@@ -16,27 +16,85 @@ const int LINE_BUFF_SIZE = 1024;
 const int BASE_LIST_SIZE = 10;
 
 int main (int argc, char * argv[]) {
-	// Determine if File Exists
-	if ((access("makefile", F_OK) != -1) || (access("Makefile", F_OK) != -1)) {
-		// File Exists
-		if (access("makefile", R_OK) != -1) {
-			// makefile Can Be Read
-			makefile = fopen("makefile", "r");
-		} else if (access("Makefile", R_OK) != -1) {
-			// Makefile Can Be Read
-			//makefile = fopen("Makefile", "r");
-			makefile = fopen("Makefile", "r");
+	// Process Command Line Args
+	char * start_target;
+	char * makefile_name;
+	if (argc == 1 || argc == 2) {
+		// Determine if File Exists
+	        if ((access("makefile", F_OK) != -1) || (access("Makefile", F_OK) != -1)) {
+        	        // File Exists
+               	 	if (access("makefile", R_OK) != -1) {
+                        	// makefile Can Be Read
+                        	makefile = fopen("makefile", "r");
+                	} else if (access("Makefile", R_OK) != -1) {
+                        	// Makefile Can Be Read
+                        	//makefile = fopen("Makefile", "r");
+                        	makefile = fopen("Makefile", "r");
+                	} else {
+                        	// File Cannot Be Read
+                        	fprintf(stderr, "Makefile Cannot Be Read\n");
+				exit(1);
+                	}
+        	} else {
+                	// File Does Not Exist
+                	fprintf(stderr, "Makefile Not Found\n");
+			exit(1);
+        	}
+		if (argc == 2) {
+			start_target = argv[1];
+		}
+	} else if (argc == 3) {
+		// -f and makefile name
+		if (strcmp(argv[1], "-f") == 0) {
+			// Used flag correctly
+			makefile_name = argv[2];
 		} else {
-			// File Cannot Be Read
-			fprintf(stderr, "Makefile Cannot Be Read\n");
+			fprintf(stderr, "Incorrect Argument Structure used. Optionally use -f followed by makefile name and/or build target.\n");
+			exit(1);
+		}
+	} else if (argc == 4) {
+		// Multiple Cases on Ordering
+		if (strcmp(argv[1], "-f") == 0 || strcmp(argv[2], "-f") == 0) {
+			if (strcmp(argv[1], "-f") == 0) {
+				// Used flag correctly before build target
+				makefile_name = argv[2];
+				start_target = argv[3];
+			} else {
+				// Used flag correctly after build target
+				makefile_name = argv[3];
+				start_target = argv[1];
+			}
+		} else {
+			fprintf(stderr, "Incorrect Argument Structure used. Optionally use -f followed by makefile name and/or build target.\n");
+			exit(1);
 		}
 	} else {
-		// File Does Not Exist
-		fprintf(stderr, "Makefile Not Found\n");
+		// Invalid number of arguments given - Print Error
+                fprintf(stderr, "Incorrect Number of Arguments Given\n");
+                exit(1);
 	}
-
+	// Open custom named makefile
+	if (argc == 3 || argc == 4) {
+		// Determine if File Exists
+                if ((access(makefile_name, F_OK) != -1)) {
+                        // File Exists
+                        if (access(makefile_name, R_OK) != -1) {
+                                // makefile Can Be Read
+                                makefile = fopen(makefile_name, "r");
+                        } else {
+                                // File Cannot Be Read
+                                fprintf(stderr, "Makefile Cannot Be Read\n");
+				exit(1);
+                        }
+                } else {
+                        // File Does Not Exist
+                        fprintf(stderr, "Makefile Not Found\n");
+			exit(1);
+                }
+	}
+	
 	// Feed Lines of Makefile to Text Parser + Build Spec_Representations
-	Spec_Representation ** nodes = malloc(sizeof(Spec_Representation) * BASE_LIST_SIZE);
+	Spec_Representation ** nodes = malloc(sizeof(Spec_Representation *) * BASE_LIST_SIZE);
 	int line_number = 1;
 	int spec_rep_index = -1;
 	int curr_spec_repr_size = BASE_LIST_SIZE;
@@ -47,6 +105,8 @@ int main (int argc, char * argv[]) {
 		char * curr_line = malloc(sizeof(char) * LINE_BUFF_SIZE);
 		if (fgets(detect_too_long, LINE_BUFF_SIZE + 1, makefile) == NULL) {
 			// End of File Reached
+			free(detect_too_long);
+			free(curr_line);
 			break;
 		}
 		if ((int)strlen(detect_too_long) > LINE_BUFF_SIZE - 1) {
@@ -81,7 +141,7 @@ int main (int argc, char * argv[]) {
 			// Allocate More Memory for List if Needed
                 	if (++spec_rep_index > (curr_spec_repr_size - 1)) {
                         	curr_spec_repr_size = curr_spec_repr_size * 2;
-                        	temp = realloc(nodes, sizeof(Spec_Representation) * curr_spec_repr_size);
+                        	temp = realloc(nodes, sizeof(Spec_Representation *) * curr_spec_repr_size);
                         	if (temp == NULL) {
                                 	fprintf(stderr, "Memory Reallocation Failed.\n");
 					exit(1);
@@ -103,12 +163,15 @@ int main (int argc, char * argv[]) {
 		
 		// Ignore Line When it is empty
 		} else if (parse_output->line_type == 'e') {
-		
+		// Ignore Line When it is a comment
+		} else if (parse_output->line_type == '#') {
 		// If Anything Else Happened Throw Error
 		} else {
 			fprintf(stderr, "%d: Invalid line: %s", parse_input->line_num, parse_input->file_line);
 			exit(1);
 		}
+		free(detect_too_long);
+		free(curr_line);
 	}
 	
 	// Build Graph of Spec_Representations
@@ -123,20 +186,14 @@ int main (int argc, char * argv[]) {
 	
 	// Get Starting Point
 	Spec_Representation * start_spec;
-	if (argc == 1) {
-		// No command line arguments - Start with 1st Spec_Representation
-		start_spec = nodes[0];
-	} else if (argc == 2) {
-		// Get Spec_Representation - Start there
-		start_spec = GetSpec(argv[1], nodes);
-		if (start_spec == NULL) {
-			fprintf(stderr, "No Build Specification Found: %s\n", argv[1]);
-			exit(1);
-		}	
+	if (argc == 2 || argc == 4) {
+		start_spec = GetSpec(start_target, nodes);
+		 if (start_spec == NULL) {
+                        fprintf(stderr, "No Build Specification Found: %s\n", argv[1]);
+                        exit(1);
+                }
 	} else {
-		// Invalid number of arguments given - Print Error
-		fprintf(stderr, "Incorrect Number of Arguments Given\n");
-		exit(1);
+		start_spec = nodes[0];
 	}
 
 	// Traverse Graph to Get Build Order
