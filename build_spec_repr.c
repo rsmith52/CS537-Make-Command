@@ -47,6 +47,12 @@ void AddCommand(Spec_Representation * spec_repr, char ** file_line) {
 
 Spec_Representation * GetSpec(char * target, Spec_Representation ** nodes) {
 	int index = 0;
+
+	if (nodes == NULL) {
+		fprintf(stderr, "Unkown error occurred.\n");
+		exit(1);
+	}
+
 	// Go through all nodes to see if matching target is found
 	while (1) {
 		if (nodes[index] == NULL) {

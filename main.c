@@ -95,6 +95,9 @@ int main (int argc, char * argv[]) {
 	
 	// Feed Lines of Makefile to Text Parser + Build Spec_Representations
 	Spec_Representation ** nodes = malloc(sizeof(Spec_Representation *) * BASE_LIST_SIZE);
+	for (int i = 0; i < BASE_LIST_SIZE; i++) {
+		nodes[i] = NULL;
+	}
 	int line_number = 1;
 	int spec_rep_index = -1;
 	int curr_spec_repr_size = BASE_LIST_SIZE;
@@ -140,14 +143,18 @@ int main (int argc, char * argv[]) {
 		else if (parse_output->line_type == 't') {
 			// Allocate More Memory for List if Needed
                 	if (++spec_rep_index > (curr_spec_repr_size - 1)) {
-                        	curr_spec_repr_size = curr_spec_repr_size * 2;
+                        	int old_spec_repr_size = curr_spec_repr_size;
+				curr_spec_repr_size = curr_spec_repr_size * 2;
                         	temp = realloc(nodes, sizeof(Spec_Representation *) * curr_spec_repr_size);
-                        	if (temp == NULL) {
+				if (temp == NULL) {
                                 	fprintf(stderr, "Memory Reallocation Failed.\n");
 					exit(1);
                         	} else {
                                 	//printf("Reallocated Memory Successfully.\n");
                                 	nodes = temp;
+					for (int k = old_spec_repr_size; k < curr_spec_repr_size; k++) {
+						nodes[k] = NULL;
+					}
                         	}
                 	}
 			nodes[spec_rep_index] = CreateSpec(parse_output->file_line_array, spec_rep_index);

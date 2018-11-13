@@ -3,3 +3,7 @@
 # test comment line
 test.o: test.c
 	gcc -c test.c
+
+clean: 
+	rm 537test
+	rm test.o

@@ -53,7 +53,11 @@ Parse_Output * ParseText(Parse_Input * input) {
 	}
 
 	for (int j = 0; j < LINE_BUFF_SIZE; j++) {
-		file_char = input->file_line[j];
+		if (input->file_line[j] != '\0') {
+			file_char = input->file_line[j];
+		} else {
+			break;
+		}
 		if (file_char == '\40' || file_char == '\n') {
 			while (input->file_line[j + 1] == '\40') {
 				j++;
