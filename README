@@ -9,3 +9,40 @@ Both of us ran through testing and fixing bugs.
 Our program also supports the extra credit options -f to name a make file, and comment lines starting with # being ignored.
 
 Clang returns 1 warning that we have thoughourly attempted to remove and can't, despite giving default values, making sure malloc succeeds, and checking for NULL values before accessing anything. We think Clang is wrong here, but can't prove it, and the program works on all test cases without crashing.
+
+################################
+UPDATE: Proj3-1 - Valgrind Fixes
+################################
+
+Valgrind gave a couple of warnings about conditional jumps (if statements) that could be based on uninitialized values. We fixed those by making sure all pointers are initialized to something or NULL.
+
+This was changed in
+
+main: additions of lines 98-100
+main: additions of lines 146, 155-157
+text_parsing: additions of lines  30-32
+
+After these changes, Valgrind gave no warnings except about lost memory.
+Of the times we allocate memory, some are freed, but some are not neccessary to free.
+
+main
+- We allocate a buffer for each line that is passed into text_parsing, we free each line when we are done with them
+- We allocate a list of nodes which are created and used throughout the program, this is where most of the allocated memory in the program is, and is not freed since it is used until the end, when it is automatically freed
+-- In cases of large files, we reallocate to make room for more memory in this list of nodes
+
+text_parsing
+- We allocate the array of char pointers which are held by the nodes and again, used throughout the program. We do not need to free these either.
+- In the case there is an error in the line, we do free the output struct as it is not needed anymore
+
+build_spec_repr
+- We allocate the structure that is each node in the list main allocates memory for. These are used throughout execution and automatically freed at the end, so don't need to be freed
+
+build_spec_graph
+- We allocate memory for the graph structure which is again, used throughout execution and automatically freed at the end.
+- We allocate a list when checking for cycles, which is only used in that part and freed at the end of it's function.
+- We allocate a list of the nodes in a specific order they should be built when traversing the graph. This list is used for the rest of the program, and automatically freed at program completion.
+
+proc_creation_prog_exe
+- We allocate an array of arguments which is used in the child process to runn commands. This is freed when the child process is done running.
+
+There are memory leaks still reported by Valgrind, but we believe they are all memory used throughout execution that is freed automatically at the end.
